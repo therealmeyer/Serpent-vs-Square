@@ -40,7 +40,7 @@ There will 5 scripts including the Webpack entry script
 #### Over the weekend:
 - [ ] Set up files (webpack) 
 - [ ] Become more familiar with collisions and Canvas
-- [ ] 
+- [ ] Research game logic 
 
 #### Day 1: Creating the skeleton with Canvas
 - [ ] Create start canvas and basic layout of page
