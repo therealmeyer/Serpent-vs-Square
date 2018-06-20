@@ -243,12 +243,13 @@ class Game {
   }
 
   addCircles() {
-    const possibleCircs = [40, 60, 100, 130, 160, 185, 
+    const possibleCircs = [40, 90, 130, 160, 185, 
       210, 230, 240, 250, 260, 290, 310, 340, 370];
 
     const numCircles = Math.floor(Math.random() * 3) + 1;
     for (var i = 0; i < numCircles; i++) {
-      const posX = Math.floor(Math.random() * 250) + 100;
+      const posX = possibleCircs[Math.floor(Math.random() * possibleCircs.length)];
+      // const posX = Math.floor(Math.random() * 250) + 100;
       this.add(new Circle({
         game: this,
         pos: [posX, 200]
@@ -513,13 +514,15 @@ class MovingObject {
     //   }
     // }
     if (otherObject.constructor.name === 'Line') {
-      if ((this.pos[0] + this.radius < otherObject.pos[0] 
-        
-        
+      if ((this.pos[0] + this.radius < otherObject.pos[0] +2
+        && this.pos[0] + this.radius > otherObject.pos[0] -2)
         || 
-        this.pos[0] - this.radius === otherObject.pos[0]) && 
-        this.pos[1] > otherObject.pos[1] && 
-        this.pos[1] < otherObject.pos[1] + otherObject.length) {
+        (this.pos[0] - this.radius < otherObject.pos[0] +2 &&
+        this.pos[0] - this.radius > otherObject.pos[0] -2)
+        && 
+        (this.pos[1] > otherObject.pos[1] && 
+        this.pos[1] < otherObject.pos[1] + otherObject.length)) {
+          // debugger;
         return true;
       } else {
         return false;
@@ -654,6 +657,7 @@ class Serpent extends MovingObject {
   }
 
   collideWith(otherObject) {
+    // debugger;
     if (otherObject instanceof Circle) {
       this.length += otherObject.value;
       // this.updateLength()
@@ -678,7 +682,7 @@ class Serpent extends MovingObject {
         // this.remove();
       }
     } else if (otherObject instanceof Line) {
-        // debugger;
+        debugger;
         if (otherObject.pos[0] > this.pos[0]) {
           this.pos[0] = otherObject.pos - this.radius;
         } else {
@@ -716,8 +720,8 @@ class Serpent extends MovingObject {
       this.prevX.pop();
     }
     for(let i = 0; i < this.length; i++) {
-      const prev = this.prevX[i] === null ? this.pos[0] : this.prevX[i]
-      let node = new SerpentNode({pos: [prev, this.pos[1] + (i*15)]});
+      const prev = this.prevX[i*3] === null ? this.pos[0] : this.prevX[i*3]
+      let node = new SerpentNode({pos: [prev, this.pos[1] + (i)]});
       // this.nodes[i].changeVelocity(i, this.vel);
       node.draw(ctx, i, this.vel);
 
