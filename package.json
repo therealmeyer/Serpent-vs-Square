@@ -1,0 +1,24 @@
+{
+  "name": "Serpent-vs-Square",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "directories": {
+    "lib": "lib"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "webpack --watch --mode=development"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/therealmeyer/Serpent-vs-Square.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/therealmeyer/Serpent-vs-Square/issues"
+  },
+  "homepage": "https://github.com/therealmeyer/Serpent-vs-Square#readme"
+}
