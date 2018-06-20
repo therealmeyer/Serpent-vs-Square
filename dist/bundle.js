@@ -127,7 +127,11 @@ class Block extends MovingObject {
 
   draw(ctx) {
     Util.drawBlock(ctx, this.pos[0], this.pos[1], 97, this.color);
-    Util.drawText(ctx, this.pos[0]-14, this.pos[1]+20, 50, 'black', this.value);
+    if (this.value > 9) {
+      Util.drawText(ctx, this.pos[0]-23, this.pos[1]+20, 50, 'black', this.value);
+    } else {
+      Util.drawText(ctx, this.pos[0]-13, this.pos[1]+20, 50, 'black', this.value);
+    }
 
   } 
 
@@ -206,8 +210,8 @@ class Game {
     this.addLines();
     this.addBlocks = this.addBlocks.bind(this);
     this.addCircles = this.addCircles.bind(this);
-    // setInterval(this.addBlocks, 5000);
-    // setInterval(this.addCircles, 5000);
+    setInterval(this.addBlocks, 5000);
+    setInterval(this.addCircles, 5000);
   }
 
   addSerpent() {
@@ -239,6 +243,9 @@ class Game {
   }
 
   addCircles() {
+    const possibleCircs = [40, 60, 100, 130, 160, 185, 
+      210, 230, 240, 250, 260, 290, 310, 340, 370];
+
     const numCircles = Math.floor(Math.random() * 3) + 1;
     for (var i = 0; i < numCircles; i++) {
       const posX = Math.floor(Math.random() * 250) + 100;
@@ -342,8 +349,8 @@ module.exports = Game;
 /***/ (function(module, exports) {
 
 const keyCodes = {
-  a: [-3, 0],
-  d: [3, 0]
+  left: [-3, 0],
+  right: [3, 0]
 };
 
 
@@ -380,6 +387,7 @@ class GameView {
   }
 
   togglePlay() {
+    debugger;
     this.paused = !this.paused;
   }
 
@@ -393,14 +401,20 @@ class GameView {
       this.bindKeyHandlers();
       this.lastTime = 0;
       requestAnimationFrame(this.animate.bind(this));
-    }
+    } 
   }
 
   animate(time) {
     if (this.serpent.length <= 0) {
-      this.ctx.font = 'normal 20px Montserrat';
+      this.ctx.font = 'normal 35px Montserrat';
       this.ctx.fillStyle = 'white';
-      this.ctx.fillText('Game Over', 200, 300);
+      this.ctx.fillText('Game Over', 110, 300);
+      this.ctx.font = 'normal 35px Montserrat';
+      this.ctx.fillStyle = 'white';
+      this.ctx.fillText(`Your Score: ${this.game.score}`, 90, 350);
+      // this.ctx.font = 'normal 30px FontAwesome';
+      // this.ctx.fillStyle = 'white';
+      // this.ctx.fillText('\uf521', 110, 450);
     }
     else if (!this.paused) {
       const timeDelta = time - this.lastTime;
@@ -498,6 +512,16 @@ class MovingObject {
     //     return false;
     //   }
     // }
+    if (otherObject.constructor.name === 'Line') {
+      if ((this.pos[0] + this.radius === otherObject.pos[0] || 
+        this.pos[0] - this.radius === otherObject.pos[0]) && 
+        this.pos[1] > otherObject.pos[1] && 
+        this.pos[1] < otherObject.pos[1] + otherObject.length) {
+        return true;
+      } else {
+        return false;
+      }
+    }
     const centerDist = Util.dist(this.pos, otherObject.pos);
     return centerDist < (this.radius + otherObject.radius);
   }
@@ -601,6 +625,7 @@ const Util = __webpack_require__(/*! ./util */ "./lib/util.js");
 const Circle = __webpack_require__(/*! ./circle */ "./lib/circle.js");
 const Block = __webpack_require__(/*! ./block */ "./lib/block.js");
 const SerpentNode = __webpack_require__(/*! ./serpent_node */ "./lib/serpent_node.js");
+const Line = __webpack_require__(/*! ./line */ "./lib/line.js");
 
 class Serpent extends MovingObject {
   constructor(options) {
@@ -634,11 +659,20 @@ class Serpent extends MovingObject {
         return otherObject.value;
       }
       else {
+        let length = this.length;
         this.length -= otherObject.value;
         otherObject.remove();
-        return Math.abs(this.length - otherObject.value);
+        return length;
         // this.remove();
       }
+    } else if (otherObject instanceof Line) {
+        debugger;
+        if (otherObject.pos[0] > this.pos[0]) {
+          this.pos[0] = otherObject.pos - this.radius;
+        } else {
+          this.pos[0] = otherObject.pos + this.radius;
+        }
+        this.vel = [0,0];
     }
   }
   power(impulse) {
