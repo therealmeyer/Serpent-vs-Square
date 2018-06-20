@@ -256,9 +256,9 @@ class Game {
     }
   }
 
-  addScore() {
-    this.add(new Score({game: this}));
-  }
+  // addScore() {
+  //   this.add(new Score({game: this}));
+  // }
 
   addLines() {
     this.add(new Line({game: this, pos: [100, 100]}));
@@ -387,7 +387,7 @@ class GameView {
   }
 
   togglePlay() {
-    debugger;
+    // debugger;
     this.paused = !this.paused;
   }
 
@@ -513,7 +513,10 @@ class MovingObject {
     //   }
     // }
     if (otherObject.constructor.name === 'Line') {
-      if ((this.pos[0] + this.radius === otherObject.pos[0] || 
+      if ((this.pos[0] + this.radius < otherObject.pos[0] 
+        
+        
+        || 
         this.pos[0] - this.radius === otherObject.pos[0]) && 
         this.pos[1] > otherObject.pos[1] && 
         this.pos[1] < otherObject.pos[1] + otherObject.length) {
@@ -634,12 +637,18 @@ class Serpent extends MovingObject {
     options.color = 'yellow';
     // options.pos = [5,5];
     super(options);
+    this.prevX = [];
     this.length = 4;
-    this.circles = [];
-    for (let i = 0; i < this.length; i++) {
-      this.circles.push({x: 200, y: 325});
-    }
+    // this.nodes = [];
+    // for (let i = 0; i < this.length; i++) {
+    //   this.nodes.push(new SerpentNode({pos: [this.pos[0], this.pos[1]+(i*22)] }))
+    // }
   }
+
+  updateLength(value) {
+    
+  }
+
   addLength(length) {
     this.length += length;
   }
@@ -647,6 +656,7 @@ class Serpent extends MovingObject {
   collideWith(otherObject) {
     if (otherObject instanceof Circle) {
       this.length += otherObject.value;
+      // this.updateLength()
       otherObject.remove();
       return 0;
     } else if (otherObject instanceof Block) {
@@ -654,6 +664,7 @@ class Serpent extends MovingObject {
         for (let i=0; i < otherObject.value; i++) {
           this.length -= 1;
         }
+        // this.updateLength(otherObject.value);
         // this.length -= otherObject.value;
         otherObject.remove();
         return otherObject.value;
@@ -661,12 +672,13 @@ class Serpent extends MovingObject {
       else {
         let length = this.length;
         this.length -= otherObject.value;
+        // this.updateLength(otherObject.value);
         otherObject.remove();
         return length;
         // this.remove();
       }
     } else if (otherObject instanceof Line) {
-        debugger;
+        // debugger;
         if (otherObject.pos[0] > this.pos[0]) {
           this.pos[0] = otherObject.pos - this.radius;
         } else {
@@ -698,10 +710,16 @@ class Serpent extends MovingObject {
     // ctx.fillStyle = this.color;
     // ctx.fillText(this.length, this.pos[0], this.pos[1]-15)
     Util.drawText(ctx, this.pos[0], this.pos[1]-15, 12, this.color, this.length);
+    
+    this.prevX.unshift(this.pos[0]);
+    if (this.prevX.length > 1000) {
+      this.prevX.pop();
+    }
     for(let i = 0; i < this.length; i++) {
-      let node = new SerpentNode({pos: this.pos});
-      node.changeVelocity(i, this.vel);
-      node.draw(ctx, i);
+      const prev = this.prevX[i] === null ? this.pos[0] : this.prevX[i]
+      let node = new SerpentNode({pos: [prev, this.pos[1] + (i*15)]});
+      // this.nodes[i].changeVelocity(i, this.vel);
+      node.draw(ctx, i, this.vel);
 
       // ctx.fillStyle = this.color;
       // ctx.beginPath();
