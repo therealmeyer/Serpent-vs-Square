@@ -100,7 +100,7 @@ class Block extends MovingObject {
   constructor(options = {}) {
     options.color = 'green';
     // options.pos = [10,5];
-    options.radius = 48;
+    options.radius = 38;
     options.vel = [0, 1];
     super(options);
     this.value = options.val;
@@ -126,7 +126,7 @@ class Block extends MovingObject {
   }
 
   draw(ctx) {
-    Util.drawBlock(ctx, this.pos[0], this.pos[1], 97, this.color);
+    Util.drawBlock(ctx, this.pos[0], this.pos[1], 77, this.color);
     if (this.value > 9) {
       Util.drawText(ctx, this.pos[0]-23, this.pos[1]+20, 50, 'black', this.value);
     } else {
@@ -206,16 +206,17 @@ class Game {
     
     this.addBlocks();
     this.addCircles();
-    // this.addScore();
     this.addLines();
     this.addBlocks = this.addBlocks.bind(this);
     this.addCircles = this.addCircles.bind(this);
-    setInterval(this.addBlocks, 5000);
-    setInterval(this.addCircles, 5000);
+    this.addLines = this.addLines.bind(this);
+    setInterval(this.addBlocks, 4500);
+    setInterval(this.addCircles, 4500);
+    setInterval(this.addLines, 4500);
   }
 
   addSerpent() {
-    const serpent = new Serpent({ pos: [200, 425], game: this });
+    const serpent = new Serpent({ pos: [200, 625], game: this });
     this.add(serpent);
     this.serpent = serpent;
     return serpent;
@@ -224,15 +225,15 @@ class Game {
   addBlocks() {
     // debugger;
     const margin = 3;
-    const blockSize = 98;
+    const blockSize = 78;
     const serpLength = this.serpent ? this.serpent.length : 5;
-    for (let i = 0; i < 4; i++) {
-      const randVal = Math.floor((Math.random() * serpLength+3) + 1);
+    for (let i = 0; i < 5; i++) {
+      const randVal = Math.floor((Math.random() * serpLength+2) + 1);
       let x;
       if (i === 0 ) {
-        x = margin + 50;
+        x = margin + 40;
       } else {
-        x = margin + (blockSize * i) + 50;
+        x = margin + (blockSize * i) + 40;
       }
       this.add(new Block({
         game: this,
@@ -240,19 +241,46 @@ class Game {
         val: randVal
       }));
     }
+
+
+
+    // const margin = 3;
+    // const blockSize = 98;
+    // const serpLength = this.serpent ? this.serpent.length : 5;
+    // for (let i = 0; i < 4; i++) {
+    //   const randVal = Math.floor((Math.random() * serpLength+3) + 1);
+    //   let x;
+    //   if (i === 0 ) {
+    //     x = margin + 50;
+    //   } else {
+    //     x = margin + (blockSize * i) + 50;
+    //   }
+    //   this.add(new Block({
+    //     game: this,
+    //     pos: [x, -1],
+    //     val: randVal
+    //   }));
+    // }
   }
 
   addCircles() {
-    const possibleCircs = [40, 90, 130, 160, 185, 
-      210, 230, 240, 250, 260, 290, 310, 340, 370];
+    const possibleCircs = [40, 90, 140, 170, 185, 
+      210, 250, 280, 310, 340, 370];
+    const possY = [100, 150, 180, 200];
+    const randomX = possibleCircs.sort(function () {
+      return 0.5 - Math.random();
+    });
+    const randomY = possY.sort(function () {
+      return 0.5 - Math.random();
+    });
 
     const numCircles = Math.floor(Math.random() * 3) + 1;
-    for (var i = 0; i < numCircles; i++) {
-      const posX = possibleCircs[Math.floor(Math.random() * possibleCircs.length)];
+    for (let i = 0; i < numCircles; i++) {
+      // const posX = possibleCircs[Math.floor(Math.random() * possibleCircs.length)];
       // const posX = Math.floor(Math.random() * 250) + 100;
       this.add(new Circle({
         game: this,
-        pos: [posX, 200]
+        pos: [randomX[i], randomY[i]]
       }));
     }
   }
@@ -262,7 +290,19 @@ class Game {
   // }
 
   addLines() {
-    this.add(new Line({game: this, pos: [100, 100]}));
+    // const lines = [];
+    // const posY = [42, ]
+    const possibleLines = [82, 161, 240, 320];
+    const random = possibleLines.sort(function () {
+      return 0.5 - Math.random();
+    });
+    const numLines = Math.floor(Math.random() * 4);
+    for (let i = 0; i < numLines; i++) {
+      // const placeX = possibleLines[Math.floor(Math.random() * possibleLines.length)];
+      
+      this.add(new Line({game: this, pos: [random[i], 42]}));
+    }
+
   }
 
   add(object) {
@@ -286,7 +326,7 @@ class Game {
 
     ctx.font = 'normal 25px Montserrat';
     ctx.fillStyle = 'white';
-    ctx.fillText(this.score, 350, 40);
+    ctx.fillText(this.score, 350, 240);
 
     this.allObjects().forEach((object) => {
       object.draw(ctx);
@@ -354,7 +394,8 @@ const keyCodes = {
   right: [3, 0]
 };
 
-
+const pauseButton = document.getElementById("pausebtn");
+// console.log(pauseButton);
 
 class GameView {
   constructor(game, ctx) {
@@ -363,12 +404,13 @@ class GameView {
     this.serpent = this.game.addSerpent();
     this.keys = Object.create(null);
     // window.addEventListener('keydown', this.bindKeyHandlers);
-
-    document.getElementById("pausebtn").addEventListener("click", this.togglePlay());
+    this.gameStarted = false;
+    // console.log(pauseButton);
+    this.paused = false;
+    pauseButton.addEventListener('click', this.togglePlay.bind(this));
 
     window.addEventListener('keyup', this.resetSerp.bind(this));
     this.resetSerp = this.resetSerp.bind(this);
-    this.paused = false;
     this.togglePlay = this.togglePlay.bind(this);
   }
 
@@ -388,8 +430,14 @@ class GameView {
   }
 
   togglePlay() {
-    // debugger;
+    debugger;
+    if (!this.gameStarted) {
+      return;
+    }
     this.paused = !this.paused;
+    if (!this.paused) {
+      this.animate(this.lastTime-100);
+    }
   }
 
   resetSerp() {
@@ -397,7 +445,12 @@ class GameView {
     this.serpent.resetVel();
   }
 
+  restart() {
+
+  }
+
   start() {
+    this.gameStarted = true;
     if (!this.paused) {
       this.bindKeyHandlers();
       this.lastTime = 0;
@@ -407,12 +460,16 @@ class GameView {
 
   animate(time) {
     if (this.serpent.length <= 0) {
+      this.ctx.globalAlpha = 0.6;
+      this.ctx.fillStyle = "black";
+      this.ctx.fillRect(0, 0, 400, 850);
+      this.ctx.globalAlpha = 1.0;
       this.ctx.font = 'normal 35px Montserrat';
       this.ctx.fillStyle = 'white';
-      this.ctx.fillText('Game Over', 110, 300);
+      this.ctx.fillText('Game Over', 110, 500);
       this.ctx.font = 'normal 35px Montserrat';
       this.ctx.fillStyle = 'white';
-      this.ctx.fillText(`Your Score: ${this.game.score}`, 90, 350);
+      this.ctx.fillText(`Your Score: ${this.game.score}`, 90, 550);
       // this.ctx.font = 'normal 30px FontAwesome';
       // this.ctx.fillStyle = 'white';
       // this.ctx.fillText('\uf521', 110, 450);
@@ -451,7 +508,7 @@ class Line extends MovingObject {
     options.pos = options.pos;
     options.vel = [0, 1];
     super(options);
-    this.length = 100;
+    this.length = 90;
   }
 
   draw(ctx) {
@@ -514,14 +571,15 @@ class MovingObject {
     //   }
     // }
     if (otherObject.constructor.name === 'Line') {
-      if ((this.pos[0] + this.radius < otherObject.pos[0] +2
-        && this.pos[0] + this.radius > otherObject.pos[0] -2)
+      // debugger;
+      if (((this.pos[0] + this.radius < otherObject.pos[0] +2
+        && this.pos[0] + this.radius > otherObject.pos[0] -1)
         || 
         (this.pos[0] - this.radius < otherObject.pos[0] +2 &&
-        this.pos[0] - this.radius > otherObject.pos[0] -2)
+        this.pos[0] - this.radius > otherObject.pos[0] -1))
         && 
         (this.pos[1] > otherObject.pos[1] && 
-        this.pos[1] < otherObject.pos[1] + otherObject.length)) {
+        this.pos[1] < otherObject.pos[1] + otherObject.length + 20)) {
           // debugger;
         return true;
       } else {
@@ -602,16 +660,39 @@ module.exports = Score;
 
 const Game = __webpack_require__(/*! ./game */ "./lib/game.js");
 const GameView = __webpack_require__(/*! ./game_view */ "./lib/game_view.js");
-
+const Util = __webpack_require__(/*! ./util */ "./lib/util.js");
 
 document.addEventListener("DOMContentLoaded", () => {
   const canvasEl = document.getElementById("game-canvas");
   canvasEl.width = 400;
-  canvasEl.height = 650;
+  canvasEl.height = 850;
 
   const ctx = canvasEl.getContext("2d");
-  const game = new Game();
-  new GameView(game, ctx).start();
+  ctx.imageSmoothingEnabled = true;
+  ctx.clearRect(0,0, 400, 850);
+  ctx.fillStye = "black";
+  ctx.fillRect(0,0, 400, 850);
+  ctx.font = 'normal 35px Montserrat';
+  ctx.fillStyle = 'white';
+  ctx.fillText("Click to Start", 100, 400);
+  Util.drawText(ctx, 200, 625- 15, 12, 'yellow', 4);
+  for (let i=0; i < 4; i++) { 
+    ctx.fillStyle = 'yellow';
+    ctx.beginPath();
+    ctx.arc(200, 625 + (i * 22), 10, 0, Math.PI * 2, true);
+    ctx.fill();
+  }
+
+  document.getElementById("restart").addEventListener('click', () => {
+    const game = new Game();
+    new GameView(game, ctx).start();
+  });
+    
+  document.getElementById("game-canvas").addEventListener('click', () => {
+    const game = new Game();
+    new GameView(game, ctx).start();
+  });
+
 });
 
 
@@ -642,15 +723,16 @@ class Serpent extends MovingObject {
     super(options);
     this.prevX = [];
     this.length = 4;
+    this.leftColliding = false;
+    this.rightColliding = false;
     // this.nodes = [];
     // for (let i = 0; i < this.length; i++) {
     //   this.nodes.push(new SerpentNode({pos: [this.pos[0], this.pos[1]+(i*22)] }))
     // }
+    this.power = this.power.bind(this);
   }
 
-  updateLength(value) {
-    
-  }
+  
 
   addLength(length) {
     this.length += length;
@@ -682,13 +764,16 @@ class Serpent extends MovingObject {
         // this.remove();
       }
     } else if (otherObject instanceof Line) {
-        debugger;
+        // debugger;
         if (otherObject.pos[0] > this.pos[0]) {
-          this.pos[0] = otherObject.pos - this.radius;
+          this.rightColliding = true;
+          // this.pos[0] = otherObject.pos - this.radius;
         } else {
-          this.pos[0] = otherObject.pos + this.radius;
+          this.leftColliding = true;
+          // this.pos[0] = otherObject.pos + this.radius;
         }
         this.vel = [0,0];
+        return 0;
     }
   }
   power(impulse) {
@@ -700,9 +785,28 @@ class Serpent extends MovingObject {
     //   this.vel[0] -= 1;
     // } 
     // debugger;
-    if (this.pos[0] > 1 && this.pos[0] < 399) {
+    // if (this.pos[0] > 1 && this.pos[0] < 8) {
+    //   debugger;
+    // }
+    if (this.pos[0] < 1 ) {
+        this.pos[0] = 2;
+        return;
+    }
+    if (this.pos[0] > 399) {
+      this.pos[0] = 398;
+      return;
+    }
+
+    if (impulse[0] < 0 && this.pos[0] > 5 && this.pos[0] < 399 && !this.leftColliding) {
+      this.vel[0] += impulse[0];
+    } else if (impulse[0] > 0 && this.pos[0] > 5 && this.pos[0] < 399 && !this.rightColliding) {
       this.vel[0] += impulse[0];
     }
+    this.leftColliding = false;
+    this.rightColliding = false;
+    // if (this.pos[0] > 1 && this.pos[0] < 399 && ) {
+    //   this.vel[0] += impulse[0];
+    // }
     // this.pos[1] += impulse[1];
   }
 
@@ -720,7 +824,7 @@ class Serpent extends MovingObject {
       this.prevX.pop();
     }
     for(let i = 0; i < this.length; i++) {
-      const prev = this.prevX[i*3] === null ? this.pos[0] : this.prevX[i*3]
+      const prev = this.prevX[i*5] === null ? this.pos[0] : this.prevX[i*5]
       let node = new SerpentNode({pos: [prev, this.pos[1] + (i)]});
       // this.nodes[i].changeVelocity(i, this.vel);
       node.draw(ctx, i, this.vel);

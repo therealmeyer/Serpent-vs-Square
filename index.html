@@ -11,7 +11,9 @@
 </head>
 
 <body>
-  <h1 class="title">Serpent VS Square</h1>
+  <div class="title">
+    <h1 class="sign">Serpent VS Square</h1>
+  </div>
   <div class="flex">
     <div class="button-box">
       <button class="gameplay" type="button">Gameplay
@@ -34,9 +36,23 @@
       <button class="restart" id="restart" type="button">
         <i class="fas fa-undo" style="font-size: 20px"></i>
       </button>
+      <div class="button-label">Arrow Keys</div>
+      <div class="button-icons">
+        <i class="fas fa-caret-square-left left-arrow"></i>
+        <i class="fas fa-caret-square-right right-arrow"></i>
+      </div>
     </div>
-    <canvas id="game-canvas"></canvas>
-    <div class="my-links"> </div>
+    <div class="canvasdiv">
+      <canvas id="game-canvas"></canvas>
+    </div>
+    <div class="my-links"> 
+      <a href="https://github.com/therealmeyer/Serpent-vs-Square">
+        <i class="fab fa-github github"></i>
+      </a>
+      <a href="https://www.linkedin.com/in/ryanlmeyer/">
+        <i class="fab fa-linkedin linkedin"></i>
+      </a>
+    </div>
     <script type="application/javascript" src="dist/bundle.js"></script>
     <script src="keymaster.js"></script>
     
