@@ -196,7 +196,7 @@ const Block = __webpack_require__(/*! ./block */ "./lib/block.js");
 const Circle = __webpack_require__(/*! ./circle */ "./lib/circle.js");
 const Util = __webpack_require__(/*! ./util */ "./lib/util.js");
 
-const pauseButton = document.getElementById("pausebtn");
+
 
 class Game {
   constructor() {
@@ -206,28 +206,20 @@ class Game {
     this.lines = [];
     this.score = 0;
     
-    this.addBlocks();
-    this.addCircles();
-    this.addLines();
+    // this.addBlocks();
+    // this.addCircles();
+    // this.addLines();
     this.addBlocks = this.addBlocks.bind(this);
     this.addCircles = this.addCircles.bind(this);
     this.addLines = this.addLines.bind(this);
 
-    pauseButton.addEventListener('click', this.togglePlay.bind(this));
-    this.paused = false;
-    this.togglePlay = this.togglePlay.bind(this);
+   
     // setInterval(this.addBlocks, 4500);
     // setInterval(this.addCircles, 4500);
     // setInterval(this.addLines, 4500);
   }
 
-  togglePlay() {
-    // debugger;
-    this.paused = !this.paused;
-    if (!this.paused) {
-      this.step(this.delta);
-    }
-  }
+  
 
   addSerpent() {
     const serpent = new Serpent({ pos: [200, 625], game: this });
@@ -365,9 +357,9 @@ class Game {
       this.circles.splice(this.circles.indexOf(object), 1);
     }
   }
-  step(delta) {
+  step(delta, paused) {
     this.delta = delta;
-    if (!this.paused) {
+    if (!paused) {
       this.moveObjects(delta);
       this.checkCollisions();
     }
@@ -420,6 +412,7 @@ const keyCodes = {
 };
 
 // console.log(pauseButton);
+const pauseButton = document.getElementById("pausebtn");
 
 class GameView {
   constructor(game, ctx) {
@@ -433,7 +426,13 @@ class GameView {
     this.paused = false;
     this.time = false;
     
+    pauseButton.addEventListener('click', this.togglePlay.bind(this));
+ 
+    this.togglePlay = this.togglePlay.bind(this);
 
+    // this.game.addBlocks();
+    // this.game.addCircles();
+    // this.game.addLines();
     window.addEventListener('keyup', this.resetSerp.bind(this));
     this.resetSerp = this.resetSerp.bind(this);
     
@@ -456,7 +455,14 @@ class GameView {
 
   }
 
-  
+  togglePlay() {
+    // debugger;
+    this.paused = !this.paused;
+    // debugger;
+    if (!this.paused) {
+      requestAnimationFrame(this.animate.bind(this));
+    }
+  }
 
   resetSerp() {
     // debugger;
@@ -472,11 +478,16 @@ class GameView {
     if (!this.paused) {
       this.bindKeyHandlers();
       this.lastTime = 0;
+      this.time = 0;
       requestAnimationFrame(this.animate.bind(this));
     } 
   }
 
   animate(time) {
+    if (this.paused) {
+      console.log("im paused");
+      return;
+    }
     if (this.serpent.length <= 0) {
       this.ctx.globalAlpha = 0.6;
       this.ctx.fillStyle = "black";
@@ -492,17 +503,18 @@ class GameView {
       // this.ctx.fillStyle = 'white';
       // this.ctx.fillText('\uf521', 110, 450);
     }
-    else if (!this.game.paused) {
+    else if (!this.paused) {
       // this.serpent.power();
       const timeDelta = time - this.lastTime;
-      this.game.step(timeDelta);
+      this.game.step(timeDelta, this.paused);
       this.game.draw(this.ctx);
-      this.time += 1;
-      if (this.time % 280 === 0) {
+      
+      if (this.time % 280 === 0 || this.time === 0) {
         this.game.addBlocks();
         this.game.addCircles();
         this.game.addLines();
       }
+      this.time += 1;
       this.lastTime = time;
       // console.log(performance.now());
       requestAnimationFrame(this.animate.bind(this));
@@ -722,6 +734,7 @@ document.addEventListener("DOMContentLoaded", () => {
     ctx1.clearRect(0,0, 400, 850);
     const game1 = new Game();
     new GameView(game1, ctx1).start();
+    
   });
   
   let _start = function() {
