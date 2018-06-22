@@ -196,6 +196,8 @@ const Block = __webpack_require__(/*! ./block */ "./lib/block.js");
 const Circle = __webpack_require__(/*! ./circle */ "./lib/circle.js");
 const Util = __webpack_require__(/*! ./util */ "./lib/util.js");
 
+const pauseButton = document.getElementById("pausebtn");
+
 class Game {
   constructor() {
     this.circles = [];
@@ -210,9 +212,21 @@ class Game {
     this.addBlocks = this.addBlocks.bind(this);
     this.addCircles = this.addCircles.bind(this);
     this.addLines = this.addLines.bind(this);
-    setInterval(this.addBlocks, 4500);
-    setInterval(this.addCircles, 4500);
-    setInterval(this.addLines, 4500);
+
+    pauseButton.addEventListener('click', this.togglePlay.bind(this));
+    this.paused = false;
+    this.togglePlay = this.togglePlay.bind(this);
+    // setInterval(this.addBlocks, 4500);
+    // setInterval(this.addCircles, 4500);
+    // setInterval(this.addLines, 4500);
+  }
+
+  togglePlay() {
+    // debugger;
+    this.paused = !this.paused;
+    if (!this.paused) {
+      this.step(this.delta);
+    }
   }
 
   addSerpent() {
@@ -226,7 +240,7 @@ class Game {
     // debugger;
     const margin = 3;
     const blockSize = 78;
-    const serpLength = this.serpent ? this.serpent.length : 5;
+    const serpLength = this.serpent ? this.serpent.length : 4;
     for (let i = 0; i < 5; i++) {
       const randVal = Math.floor((Math.random() * serpLength+2) + 1);
       let x;
@@ -352,8 +366,11 @@ class Game {
     }
   }
   step(delta) {
-    this.moveObjects(delta);
-    this.checkCollisions();
+    this.delta = delta;
+    if (!this.paused) {
+      this.moveObjects(delta);
+      this.checkCollisions();
+    }
   }
 
   allObjects() {
@@ -376,7 +393,7 @@ class Game {
 Game.BG_COLOR = "#000000";
 Game.DIM_X = 400;
 Game.DIM_Y = 850;
-Game.FPS = 60;
+// Game.FPS = 60;
 
 module.exports = Game;
 
@@ -394,7 +411,7 @@ const keyCodes = {
   right: [3, 0]
 };
 
-const pauseButton = document.getElementById("pausebtn");
+
 // console.log(pauseButton);
 
 class GameView {
@@ -407,11 +424,12 @@ class GameView {
     this.gameStarted = false;
     // console.log(pauseButton);
     this.paused = false;
-    pauseButton.addEventListener('click', this.togglePlay.bind(this));
+    this.time = false;
+    
 
     window.addEventListener('keyup', this.resetSerp.bind(this));
     this.resetSerp = this.resetSerp.bind(this);
-    this.togglePlay = this.togglePlay.bind(this);
+    
   }
 
   bindKeyHandlers() {
@@ -419,7 +437,9 @@ class GameView {
     const serpent = this.serpent;
     Object.keys(keyCodes).forEach((k) => {
       const move = keyCodes[k];
-      key(k, () => { serpent.power(move); });
+      key(k, () => { 
+        serpent.power(move);
+      });
     });
     // debugger;
     // if (keyCodes.hasOwnProperty(e.keyCode)) {
@@ -429,16 +449,7 @@ class GameView {
 
   }
 
-  togglePlay() {
-    debugger;
-    if (!this.gameStarted) {
-      return;
-    }
-    this.paused = !this.paused;
-    if (!this.paused) {
-      this.animate(this.lastTime-100);
-    }
-  }
+  
 
   resetSerp() {
     // debugger;
@@ -474,12 +485,19 @@ class GameView {
       // this.ctx.fillStyle = 'white';
       // this.ctx.fillText('\uf521', 110, 450);
     }
-    else if (!this.paused) {
+    else if (!this.game.paused) {
+      // this.serpent.power();
       const timeDelta = time - this.lastTime;
       this.game.step(timeDelta);
       this.game.draw(this.ctx);
+      this.time += 1;
+      if (this.time % 280 === 0) {
+        this.game.addBlocks();
+        this.game.addCircles();
+        this.game.addLines();
+      }
       this.lastTime = time;
-
+      // console.log(performance.now());
       requestAnimationFrame(this.animate.bind(this));
     }
   }
@@ -546,13 +564,13 @@ class MovingObject {
 
   }
 
-  draw(ctx) {
-    ctx.fillStyle = this.color;
+  // draw(ctx) {
+  //   ctx.fillStyle = this.color;
 
-    ctx.beginPath();
-    ctx.arc(this.pos[0], this.pos[1], this.radius, 0, 2 * Math.PI, true);
-    ctx.fill();
-  }
+  //   ctx.beginPath();
+  //   ctx.arc(this.pos[0], this.pos[1], this.radius, 0, 2 * Math.PI, true);
+  //   ctx.fill();
+  // }
 
   isCollidedWith(otherObject) {
     // console.log(otherObject.constructor.name);
@@ -588,6 +606,11 @@ class MovingObject {
     }
     const centerDist = Util.dist(this.pos, otherObject.pos);
     return centerDist < (this.radius + otherObject.radius);
+  }
+
+
+  nextPos(timeDelta) {
+
   }
 
   move(timeDelta) {
@@ -765,6 +788,11 @@ class Serpent extends MovingObject {
       }
     } else if (otherObject instanceof Line) {
         // debugger;
+        // if (this.pos[0] < otherObject.pos[0] + 2 && this.pos[0] < otherObject.pos[0] -2) {
+        //   this.pos[0] = otherObject.pos[0] -10;
+        //   return 0;
+        // }
+
         if (otherObject.pos[0] > this.pos[0]) {
           this.rightColliding = true;
           // this.pos[0] = otherObject.pos - this.radius;
@@ -779,32 +807,40 @@ class Serpent extends MovingObject {
   power(impulse) {
     this.vel = [0, 0];
 
-    // if (key === 'left' && this.pos[0] > 1) {
-    //   this.vel[0] += 1; 
-    // } else if (key === 'right' && this.pos[0] < 399) {
-    //   this.vel[0] -= 1;
-    // } 
+    // 
     // debugger;
     // if (this.pos[0] > 1 && this.pos[0] < 8) {
     //   debugger;
     // }
-    if (this.pos[0] < 1 ) {
-        this.pos[0] = 2;
-        return;
-    }
-    if (this.pos[0] > 399) {
-      this.pos[0] = 398;
+
+    // if (this.pos[0] + impulse[0] + this.vel[0] < this.radius ||
+    //   this.pos[0] + this.radius + impulse[0] + this.vel[0] > 399) {
+    //   impulse[0] = 0;
+    //   this.vel[0] = 0;
+    // }
+
+    // console.log(this.pos[0]);
+
+    if (this.pos[0] + this.radius > 399 && impulse[0] > 0) {
+      // return;
+      impulse[0] = 0;
+      this.pos[0] = 389;
       return;
     }
 
-    if (impulse[0] < 0 && this.pos[0] > 5 && this.pos[0] < 399 && !this.leftColliding) {
+    if (impulse[0] < 0 && !this.leftColliding) {
       this.vel[0] += impulse[0];
-    } else if (impulse[0] > 0 && this.pos[0] > 5 && this.pos[0] < 399 && !this.rightColliding) {
+    } else if (impulse[0] > 0 && !this.rightColliding) {
       this.vel[0] += impulse[0];
+    } else {
+      // debugger;
     }
+
     this.leftColliding = false;
     this.rightColliding = false;
-    // if (this.pos[0] > 1 && this.pos[0] < 399 && ) {
+
+
+    // if (this.pos[0] > 1 && this.pos[0] < 399 ) {
     //   this.vel[0] += impulse[0];
     // }
     // this.pos[1] += impulse[1];
@@ -817,23 +853,55 @@ class Serpent extends MovingObject {
   draw(ctx) {
     // ctx.fillStyle = this.color;
     // ctx.fillText(this.length, this.pos[0], this.pos[1]-15)
+    if (this.pos[0] + this.radius > 399) {
+      this.pos[0] = 389;
+    } else if (this.pos[0] - this.radius < 1) {
+      this.pos[0] = 11;
+    }
+
     Util.drawText(ctx, this.pos[0], this.pos[1]-15, 12, this.color, this.length);
+    this.mostPrev = [this.pos[0], this.pos[1]];
     
     this.prevX.unshift(this.pos[0]);
-    if (this.prevX.length > 1000) {
+    if (this.prevX.length > 2000) {
       this.prevX.pop();
     }
-    for(let i = 0; i < this.length; i++) {
-      const prev = this.prevX[i*5] === null ? this.pos[0] : this.prevX[i*5]
-      let node = new SerpentNode({pos: [prev, this.pos[1] + (i)]});
-      // this.nodes[i].changeVelocity(i, this.vel);
-      node.draw(ctx, i, this.vel);
+    // console.log(this.prevX);
 
+
+    // let prevPosX;
+    // let prevPosY;
+    // for(let i = 0; i < this.length; i++) {
+    //   let index = 0;
+    //   if (i === 0) {
+    //     prevPosX = this.pos[0];
+    //     prevPosY = this.pos[1];
+    //   } else {
+    //     index = i;
+    //     prevPosX = this.prevX[index] === undefined ? this.pos[0] : this.prevX[index];
+    //     prevPosY = this.pos[1] + (index);
+    //     while (Util.dist([prevPosX, this.pos[1] + index], this.mostPrev ) < 10) {
+    //       prevPosX = this.prevX[index];
+    //       prevPosY = this.pos[1] + (index);
+    //       index += 1;
+    //     }
+    //     this.mostPrev = [prevPosX, prevPosY];
+    //     // debugger;
+    //   }
+    //   let node = new SerpentNode({ pos: [prevPosX, prevPosY] });
+    //   node.draw(ctx, i, this.vel);
+  // }
+    for (let i = 0; i < this.length; i++) {
+
+      const prevPos = this.prevX[i*4] === null ? this.pos[0] : this.prevX[i*4]
+      let node = new SerpentNode({pos: [prevPos, this.pos[1] + (i)]});
+      node.draw(ctx, i, this.vel);
+    }
       // ctx.fillStyle = this.color;
       // ctx.beginPath();
       // ctx.arc(this.pos[0] + this.vel[0]*(i*(-10)), this.pos[1] + (i*22), this.radius, 0, Math.PI *2, true);
       // ctx.fill();
-    }
+    
   }
 }
 

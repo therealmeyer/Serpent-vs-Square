@@ -88,6 +88,11 @@ body {
   border: 5px solid #ccc;
 }
 
+.gameplay:hover {
+  background: #ccc;
+  border: 5px solid #bbb;
+}
+
 .pause-play {
   background-color: #ccc;
   padding: 10px;
@@ -98,6 +103,9 @@ body {
   margin-bottom: 15px;
 }
 
+.pause-play:hover {
+  background-color: #aaa;
+}
 
 .restart {
   background-color: #ccc;
@@ -108,15 +116,20 @@ body {
   text-align: center;
 }
 
+.restart:hover {
+  background-color: #aaa;
+}
+
 .gameplay-info {
   display: none;
   width: 350px;
   height: 600px;
-  background: rgba(0,0,0,0.8);
+  background: rgba(0,0,0,0.9);
   position: absolute;
   top: 5px;
   right: 458px;
   padding: 25px;
+  z-index: 1;
   /* opacity: 0.5; */
 }
 
@@ -179,9 +192,9 @@ body {
 }
 
 .left-arrow:hover {
-  color: #eee;
+  color: #ccc;
 }
 
 .right-arrow:hover {
-  color: #eee;
+  color: #ccc;
 }
