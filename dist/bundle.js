@@ -388,6 +388,14 @@ class Game {
       }
     }
   }
+
+  reset() {
+    this.blocks = [];
+    this.circles = [];
+    this.serpents = [];
+    this.lines = [];
+    this.score = 0;
+  }
 }
 
 Game.BG_COLOR = "#000000";
@@ -410,7 +418,6 @@ const keyCodes = {
   left: [-3, 0],
   right: [3, 0]
 };
-
 
 // console.log(pauseButton);
 
@@ -705,16 +712,30 @@ document.addEventListener("DOMContentLoaded", () => {
     ctx.arc(200, 625 + (i * 22), 10, 0, Math.PI * 2, true);
     ctx.fill();
   }
-
+  const game = new Game();
   document.getElementById("restart").addEventListener('click', () => {
-    const game = new Game();
-    new GameView(game, ctx).start();
+    game.reset();
+    // delete game;
+    ctx.clearRect(0,0, 400,850);
+    const canvas = document.getElementById('game-canvas');
+    const ctx1 = canvas.getContext('2d');
+    ctx1.clearRect(0,0, 400, 850);
+    const game1 = new Game();
+    new GameView(game1, ctx1).start();
   });
+  
+  let _start = function() {
     
-  document.getElementById("game-canvas").addEventListener('click', () => {
-    const game = new Game();
+  };
+
+  document.getElementById("game-canvas").addEventListener('click', function start() {
     new GameView(game, ctx).start();
-  });
+    document.getElementById("game-canvas").removeEventListener('click', start, true);
+  }, true);
+
+
+
+
 
 });
 
