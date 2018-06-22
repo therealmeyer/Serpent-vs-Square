@@ -359,6 +359,8 @@ class Game {
   }
   step(delta, paused) {
     this.delta = delta;
+    // debugger;
+    console.log(paused);
     if (!paused) {
       this.moveObjects(delta);
       this.checkCollisions();
@@ -455,14 +457,21 @@ class GameView {
 
   }
 
-  togglePlay() {
-    // console.log(this.lastTime);
+  togglePlay(event) {
+    let timeStamp = event.timeStamp;
+    // debugger;
+    console.log(this.lastTime);
     console.log(this.frame);
     this.paused = !this.paused;
     // debugger;
     if (!this.paused) {
       // debugger;
-      requestAnimationFrame(this.animate.bind(this));
+      // this.animate(this.timeStamp);
+      // idea: reset this.lastTime
+      this.lastTime = timeStamp;
+      this.frame = requestAnimationFrame(this.animate.bind(this));
+    } else {
+      cancelAnimationFrame(this.frame);
     }
   }
 
@@ -481,11 +490,13 @@ class GameView {
       this.bindKeyHandlers();
       this.lastTime = 0;
       this.time = 0;
-      requestAnimationFrame(this.animate.bind(this));
+      this.frame = requestAnimationFrame(this.animate.bind(this));
     } 
   }
 
   animate(time) {
+    // debugger
+    this.timeStamp = time;
     if (this.paused) {
       console.log("im paused");
       return;
@@ -506,6 +517,9 @@ class GameView {
       // this.ctx.fillText('\uf521', 110, 450);
     }
     else if (!this.paused) {
+
+      // debugger;
+
       // this.serpent.power();
       console.log("animating things");
       const timeDelta = time - this.lastTime;
@@ -521,7 +535,7 @@ class GameView {
       this.lastTime = time;
       // console.log(performance.now());
       this.frame = requestAnimationFrame(this.animate.bind(this));
-      console.log(this.frame);
+      // console.log(requestAnimationFrame(this.animate.bind(this)));
     } 
   }
 }
@@ -901,40 +915,43 @@ class Serpent extends MovingObject {
     this.mostPrev = [this.pos[0], this.pos[1]];
     
     this.prevX.unshift(this.pos[0]);
-    if (this.prevX.length > 2000) {
+    if (this.prevX.length > 4000) {
       this.prevX.pop();
     }
     // console.log(this.prevX);
 
-
-    // let prevPosX;
-    // let prevPosY;
-    // for(let i = 0; i < this.length; i++) {
-    //   let index = 0;
-    //   if (i === 0) {
-    //     prevPosX = this.pos[0];
-    //     prevPosY = this.pos[1];
-    //   } else {
-    //     index = i;
-    //     prevPosX = this.prevX[index] === undefined ? this.pos[0] : this.prevX[index];
-    //     prevPosY = this.pos[1] + (index);
-    //     while (Util.dist([prevPosX, this.pos[1] + index], this.mostPrev ) < 10) {
-    //       prevPosX = this.prevX[index];
-    //       prevPosY = this.pos[1] + (index);
-    //       index += 1;
-    //     }
-    //     this.mostPrev = [prevPosX, prevPosY];
-    //     // debugger;
-    //   }
-    //   let node = new SerpentNode({ pos: [prevPosX, prevPosY] });
-    //   node.draw(ctx, i, this.vel);
-  // }
-    for (let i = 0; i < this.length; i++) {
-
-      const prevPos = this.prevX[i*4] === null ? this.pos[0] : this.prevX[i*4]
-      let node = new SerpentNode({pos: [prevPos, this.pos[1] + (i)]});
+    this.mostPrevIndex = 1;
+    let prevPosX;
+    let prevPosY;
+    for(let i = 0; i < this.length; i++) {
+      let index = 0;
+      if (i === 0) {
+        prevPosX = this.pos[0];
+        prevPosY = this.pos[1];
+      } else {
+        index = this.mostPrevIndex;
+        prevPosX = this.prevX[index] === undefined ? this.pos[0] : this.prevX[index];
+        prevPosY = this.pos[1] + (index);
+        while (Util.dist([prevPosX, this.pos[1] + index], this.mostPrev ) < 21) {
+          prevPosX = this.prevX[index];
+          prevPosY = this.pos[1] + (index);
+          index += 1;
+        }
+        this.mostPrev = [prevPosX, prevPosY];
+        this.mostPrevIndex = index;
+        // console.log("most-prev", this.mostPrev);
+      }
+      let node = new SerpentNode({ pos: [prevPosX, prevPosY] });
       node.draw(ctx, i, this.vel);
-    }
+  }
+
+
+    // for (let i = 0; i < this.length; i++) {
+    //   // debugger;
+    //   const prevPos = this.prevX[i*4] === null ? this.pos[0] : this.prevX[i*4]
+    //   let node = new SerpentNode({pos: [prevPos, this.pos[1] + (i*22)]});
+    //   node.draw(ctx);
+    // }
       // ctx.fillStyle = this.color;
       // ctx.beginPath();
       // ctx.arc(this.pos[0] + this.vel[0]*(i*(-10)), this.pos[1] + (i*22), this.radius, 0, Math.PI *2, true);
@@ -969,10 +986,10 @@ class SerpentNode extends MovingObject {
     , 1000*i);
   }
 
-  draw(ctx, i) {
+  draw(ctx) {
     ctx.fillStyle = this.color;
     ctx.beginPath();
-    ctx.arc(this.pos[0], this.pos[1] + (i*22), this.radius, 0, Math.PI*2, true);
+    ctx.arc(this.pos[0], this.pos[1], this.radius, 0, Math.PI*2, true);
     ctx.fill();
   }
 
