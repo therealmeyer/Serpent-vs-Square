@@ -456,10 +456,12 @@ class GameView {
   }
 
   togglePlay() {
-    // debugger;
+    // console.log(this.lastTime);
+    console.log(this.frame);
     this.paused = !this.paused;
     // debugger;
     if (!this.paused) {
+      // debugger;
       requestAnimationFrame(this.animate.bind(this));
     }
   }
@@ -505,6 +507,7 @@ class GameView {
     }
     else if (!this.paused) {
       // this.serpent.power();
+      console.log("animating things");
       const timeDelta = time - this.lastTime;
       this.game.step(timeDelta, this.paused);
       this.game.draw(this.ctx);
@@ -517,8 +520,9 @@ class GameView {
       this.time += 1;
       this.lastTime = time;
       // console.log(performance.now());
-      requestAnimationFrame(this.animate.bind(this));
-    }
+      this.frame = requestAnimationFrame(this.animate.bind(this));
+      console.log(this.frame);
+    } 
   }
 }
 
