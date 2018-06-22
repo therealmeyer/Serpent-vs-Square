@@ -1,68 +1,69 @@
-# Serpent-vs-Square
+# README
 
-### Background and Overview 
-Serpent vs Square is a game based on two classic games, Snake and Block. An initial snake starts the game, as the goal is to make the snake as large as possible while trying to avoid blocks or go through the smallest amount block. Users will use arrow keys in order to control the snake to avoid obstacles. Random blocks and lines are generated for the user to avoid. Score is accumulated based on the number of blocks the snake can make it through. Snakes gain length from circles and lose length from square blocks. 
+# Serpent VS Square
+Serpent VS Square is simple visual game based on two classic games, Snake and Block. An initial snake starts the game, as the goal is to make the snake as large as possible by colliding with circles that extend the length. This must be done while trying to avoid blocks or hit blocks with the smallest number, as the value of the block subtracts from the snake length. Users will use arrow keys in order to control the snake to avoid obstacles. Random blocks and lines are generated for the user to avoid. Score is accumulated based on the number value of blocks the snake can make it through. 
+[Serpent-VS-Square Live](https://therealmeyer.github.io/Serpent-vs-Square/)
 
-### Functionality and MVPs
+![Game](https://s3-us-west-1.amazonaws.com/sonicstratus/serp-v-square.png)
 
-Users will be able to: 
+## Technologies
+* Javascript
+* HTML
+* CSS
 
-- [ ] Start, pause, and restart game
-- [ ] Control the snake via arrow keys
-- [ ] See leader board of high scores
-- [ ] See a demo of game play
+## Features
+### Serpent Movement
+The movement of the serpent was difficult to emulate. The current method of rendering on Canvas was to have the serpent be at a fixed position and have all other objects have a negative velocity. This would simplify the task of always having the serpent in the center of the screen. However, this presented problems when attempting to emulate the movement of the serpent. Ultimately to solve this problem, an array of the previous positions of the head node was stored, and on each subsequent render the position of the next node was taken from this array based on its index. This resulted in a smooth flowing snake on change of direction. 
 
-Additional:
+![Snake](https://s3-us-west-1.amazonaws.com/sonicstratus/serpvsquare.gif)
 
-- [ ] An about dropdown describing game play
-- [ ] Randonly generate block numbers and snake dots
+### Collision Detection
+Object collisions and physics of the game were challenging. A `util.js` file was created in order to hand calculations such as distance and velocity. Custom collision detections for each object had to be made because each object was a different shape and each collision resulted in a different effect. The Line collisions were an especially difficult problem as the velocity of the serpent had to be altered and restricted based on both objects respective positions. 
 
-### Wireframes
+For my implementation, a general collision detection function was placed in my MovingObject Class from which all objects inherit. This function returns a boolean if there is any type of collision. Once any collision is detected, different outcomes must occur based on the types of collisions. This was handled in my Serpent class: 
 
-This app will consist of a single screen with the gameplay canvas, buttons for info regarding gameplay, the leaderboard, and a demo. Arrow keys to show the controls, so that it is intuitive and easy for the user to pick up the game. And the app will also have a pause/play and restart button for playability convenience.  
+```javascript
+  handleCollision(otherObject) {
+    // Circle? Increment snake length
+    if (otherObject instanceof Circle) {
+      this.length += otherObject.value;
+      otherObject.remove();
+      return 0;
+    // Block? Decrement Snake Length
+    } else if (otherObject instanceof Block) {
+      if (otherObject.value < this.length) {
+        this.length -= otherObject.value;
+        otherObject.remove();
+        return otherObject.value;
+      }
+      else {
+        let length = this.length;
+        this.length -= otherObject.value;
+        otherObject.remove();
+        return length;
+      }
+    //Line? Set flags to restrict respective velocities
+    } else if (otherObject instanceof Line) {
+        if (otherObject.pos[0] > this.pos[0]) {
+          this.rightColliding = true;
+        } else {
+          this.leftColliding = true;
+        }
+        this.vel = [0,0];
+        return 0;
+    }
+  }
+```
+The Serpent is the only object that will be colliding with other objects, thus the checks were easiest to implement in this class. This function handles the update of the score.
 
-![SerpentvSquare](https://s3-us-west-1.amazonaws.com/sonicstratus/serpent-vs-square.png)
 
-### Architecture and Technologies
-* Vanilla `Javascript` (structure, log, DOM Manipulation)
-* `HTML5 Canvas` (Rendering)
-* Webpack (bundle and serve scripts)
+## Future Plans and Improvements 
 
-There will 5 scripts including the Webpack entry script
-* `game.js` for rendering the canvas
-* `play.js` for game logic 
-* `draw.js` for drawing necessary shapes
-* `start.js` for showing the startup state
-* `bundle.js` for webpack entry
+- [ ] Improved head-on line collisions
+- [ ] Pause on block collisions and decrement snake length and Block value one by one
+- [ ] Animate block collisions with explosion/floating particles
 
-### Implementation Timeline
 
-#### Over the weekend:
-- [ ] Set up files (webpack) 
-- [ ] Become more familiar with collisions and Canvas
-- [ ] Research game logic 
 
-#### Day 1: Creating the skeleton with Canvas
-- [ ] Create start canvas and basic layout of page
-- [ ] Implement block and snake circle creation
-- [ ] Start implementing game logic
 
-#### Day 2: Game Logic
-- [ ] Finish game logic 
-- [ ] Start on collision graphics 
-
-#### Day 3: User controls
-- [ ] finish collision graphics 
-- [ ] create controls for the user 
-- [ ] get server running for keeping track of high scores
-
-#### Day 4: Finishing Touches
-- [ ] Implement Pause/Play/Restart
-- [ ] Finishing touches and styling
-- [ ] Complete info pages
-
-### Bonus features
-- [ ] User can change colors of snakes and blocks
-- [ ] Advanced animations of destroying blocks
-- [ ] Sharing scores 
 
