@@ -233,7 +233,9 @@ class Game {
   }
 
   addBlocks() {
-    // debugger;
+    // debugger
+    
+    // console.log("added blocks");
     const margin = 3;
     const blockSize = 78;
     const serpLength = this.serpent ? this.serpent.length : 4;
@@ -245,9 +247,10 @@ class Game {
       } else {
         x = margin + (blockSize * i) + 40;
       }
+      // console.log("right before block add", x);
       this.add(new Block({
         game: this,
-        pos: [x, -1],
+        pos: [x, 0],
         val: randVal
       }));
     }
@@ -274,6 +277,7 @@ class Game {
   }
 
   addCircles() {
+    // console.log("added circles");
     const possibleCircs = [40, 90, 140, 170, 185, 
       210, 250, 280, 310, 340, 370];
     const possY = [100, 150, 180, 200];
@@ -302,6 +306,7 @@ class Game {
   addLines() {
     // const lines = [];
     // const posY = [42, ]
+    // console.log("added lines");
     const possibleLines = [82, 161, 240, 320];
     const random = possibleLines.sort(function () {
       return 0.5 - Math.random();
@@ -364,7 +369,7 @@ class Game {
   step(delta, paused) {
     this.delta = delta;
     // debugger;
-    console.log(paused);
+    // console.log(paused);
     if (!paused) {
       this.moveObjects(delta);
       this.checkCollisions();
@@ -464,8 +469,8 @@ class GameView {
   togglePlay(event) {
     let timeStamp = event.timeStamp;
     // debugger;
-    console.log(this.lastTime);
-    console.log(this.frame);
+    //console.log(this.lastTime);
+    //console.log(this.frame);
     this.paused = !this.paused;
     // debugger;
     if (!this.paused) {
@@ -502,7 +507,7 @@ class GameView {
     // debugger
     this.timeStamp = time;
     if (this.paused) {
-      console.log("im paused");
+      //console.log("im paused");
       return;
     }
     if (this.serpent.length <= 0) {
@@ -525,11 +530,12 @@ class GameView {
       // debugger;
 
       // this.serpent.power();
-      console.log("animating things");
+      //console.log("animating things");
       const timeDelta = time - this.lastTime;
       this.game.step(timeDelta, this.paused);
       this.game.draw(this.ctx);
       
+      //console.log(this.time);
       if (this.time % 280 === 0 || this.time === 0) {
         this.game.addBlocks();
         this.game.addCircles();
