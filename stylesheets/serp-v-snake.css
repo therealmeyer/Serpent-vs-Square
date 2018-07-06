@@ -53,6 +53,16 @@ body {
   bottom: 0;
 }
 
+.canvas-overlay {
+  position: absolute;
+  left: 100px;
+  bottom: 430px;
+  color: white;
+  font-family: 'Montserrat';
+  font-size: 32px;
+  z-index: 3;
+}
+
 @keyframes neon {
   from {
     text-shadow:
