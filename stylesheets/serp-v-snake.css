@@ -8,6 +8,10 @@
   display: inline-block;
 }
 
+canvas {
+  font-family: 'Montserrat';
+}
+
 body {
   /* background-color: black; */
   /* background-size: cover; */
