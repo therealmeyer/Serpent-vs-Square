@@ -9,6 +9,14 @@
     <link rel="shortcut icon" type="image/x-icon" href="assets/block-favicon.png">
     <link href="https://fonts.googleapis.com/css?family=Montserrat" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css?family=Exo+2" rel="stylesheet">
+    <script src="https://ajax.googleapis.com/ajax/libs/webfont/1.6.26/webfont.js"></script>
+    <script>
+      WebFont.load({
+        google: {
+          families: ['Montserrat', 'Exo 2']
+        }
+      });
+    </script>
 </head>
 
 <body>
@@ -43,7 +51,9 @@
         <i class="fas fa-caret-square-right right-arrow"></i>
       </div>
     </div>
+    
     <div class="canvasdiv">
+      <div id="preloadfont">.</div>
       <canvas id="game-canvas"></canvas>
     </div>
     <div class="my-links"> 

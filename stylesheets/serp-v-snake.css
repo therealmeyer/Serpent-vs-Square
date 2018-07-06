@@ -1,3 +1,13 @@
+/* @import url(https://fonts.googleapis.com/css?family=Montserrat) */
+
+#preloadfont {
+  font-family: 'Montserrat';
+  opacity: 0;
+  height: 0;
+  width: 0;
+  display: inline-block;
+}
+
 body {
   /* background-color: black; */
   /* background-size: cover; */
