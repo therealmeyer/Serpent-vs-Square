@@ -170,6 +170,10 @@ body {
 .gameplay:hover .gameplay-info {
   display: block;
 }
+/* .gameplay:hover ~ .canvas-overlay {
+  display: none;
+} */
+
 
 .my-links {
   display: flex;

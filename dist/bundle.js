@@ -733,6 +733,7 @@ const GameView = __webpack_require__(/*! ./game_view */ "./lib/game_view.js");
 const Util = __webpack_require__(/*! ./util */ "./lib/util.js");
 
 document.addEventListener("DOMContentLoaded", () => {
+  let started = false;
   const canvasEl = document.getElementById("game-canvas");
   canvasEl.width = 400;
   canvasEl.height = 850;
@@ -775,11 +776,14 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 
   document.getElementById("gameplay").addEventListener("mouseout", function () {
-    document.getElementById("canvas-overlay").style.display = "block";
+    if (!started) {
+      document.getElementById("canvas-overlay").style.display = "block";
+    }
   });
 
 
   document.getElementById("canvas-overlay").addEventListener('click', function start() {
+    started = true;
     document.getElementById('canvas-overlay').style.display = "none";
     new GameView(game, ctx).start();
     document.getElementById("canvas-overlay").removeEventListener('click', start, true);
@@ -787,6 +791,7 @@ document.addEventListener("DOMContentLoaded", () => {
   }, true);
 
   document.getElementById("game-canvas").addEventListener('click', function start() {
+    started = true;
     document.getElementById('canvas-overlay').style.display = "none";
     new GameView(game, ctx).start();
     document.getElementById("game-canvas").removeEventListener('click', start, true);
